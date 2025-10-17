@@ -67,72 +67,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0A0A0A) : const Color(0xFFF8F9FA),
-      body: Stack(
-        children: [
-          if (isDark)
-            Positioned(
-              top: -100,
-              right: -100,
-              child: Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF00D4FF).withOpacity(0.1),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - 
+                         MediaQuery.of(context).padding.top - 
+                         MediaQuery.of(context).padding.bottom,
             ),
-          
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 80 : 24,
-                vertical: 24,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            'Portfolio',
-                            style: TextStyle(
-                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: GestureDetector(
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            widget.onThemeToggle(!isDark);
-                          },
+            child: IntrinsicHeight(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 80 : 24,
+                  vertical: 24,
+                ),
+                child: Column(
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        FadeTransition(
+                          opacity: _fadeAnimation,
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
                               borderRadius: BorderRadius.circular(12),
@@ -145,24 +103,53 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               ],
                             ),
                             child: Icon(
-                              isDark ? Icons.wb_sunny : Icons.nightlight_round,
+                              Icons.terminal,
                               color: isDark ? const Color(0xFF00D4FF) : const Color(0xFF2196F3),
-                              size: 24,
+                              size: 32,
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  
-                  Expanded(
-                    child: isDesktop ? _buildDesktopLayout() : _buildMobileLayout(),
-                  ),
-                ],
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: _HoverButton(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              widget.onThemeToggle(!isDark);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                isDark ? Icons.wb_sunny : Icons.nightlight_round,
+                                color: isDark ? const Color(0xFF00D4FF) : const Color(0xFF2196F3),
+                                size: 24,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    // Main content
+                    Expanded(
+                      child: isDesktop ? _buildDesktopLayout() : _buildMobileLayout(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -173,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Row(
       children: [
         Expanded(
-          flex: 2,
+          flex: 3,
           child: SlideTransition(
             position: _slideAnimation,
             child: FadeTransition(
@@ -209,45 +196,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
         ),
-        
+        const SizedBox(width: 60),
         Expanded(
-          flex: 1,
+          flex: 2,
           child: SlideTransition(
             position: _slideAnimation,
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: Center(
-                child: Container(
-                  width: 300,
-                  height: 400,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 30,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.asset(
-                      'assets/images/slack.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFE0E0E0),
-                          child: const Icon(
-                            Icons.person,
-                            size: 120,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
+                child: _buildImageWidget(300, 400, isDark),
               ),
             ),
           ),
@@ -266,57 +223,96 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 200,
-              height: 250,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFE0E0E0),
-                  child: const Icon(
-                    Icons.person,
-                    size: 80,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
+            const SizedBox(height: 20),
+            
+            // Profile image
+            _buildImageWidget(200, 250, isDark),
+            
             const SizedBox(height: 40),
             
+            // Text content
             Text(
               'David',
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontSize: 42,
+                fontSize: 36,
               ),
               textAlign: TextAlign.center,
             ),
             Text(
               '(Pheonix0x01)',
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontSize: 42,
+                fontSize: 36,
                 color: isDark ? const Color(0xFF00D4FF) : const Color(0xFF2196F3),
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            Text(
-              'Backend Developer • AI Programmer • Web3 Writer',
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.center,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Backend Developer • AI Programmer • Web3 Writer',
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 48),
             _buildNavigationButtons(),
+            const SizedBox(height: 20),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageWidget(double width, double height, bool isDark) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Image.asset(
+          'assets/slack.png',
+          fit: BoxFit.cover,
+          width: width,
+          height: height,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback widget if image doesn't load
+            return Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isDark 
+                    ? [
+                        const Color(0xFF1A1A1A),
+                        const Color(0xFF2A2A2A),
+                      ]
+                    : [
+                        const Color(0xFFE8E8E8),
+                        const Color(0xFFF5F5F5),
+                      ],
+                ),
+              ),
+              child: Icon(
+                Icons.person,
+                size: width * 0.3,
+                color: isDark ? const Color(0xFF00D4FF) : const Color(0xFF2196F3),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -328,6 +324,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Wrap(
       spacing: 16,
       runSpacing: 16,
+      alignment: WrapAlignment.center,
       children: [
         _buildNavButton('About', const AboutScreen(), isDark),
         _buildNavButton('Skills', const SkillsScreen(), isDark),
@@ -337,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildNavButton(String text, Widget screen, bool isDark) {
-    return GestureDetector(
+    return _HoverButton(
       onTap: () {
         HapticFeedback.lightImpact();
         Navigator.push(
@@ -356,8 +353,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         );
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
@@ -381,6 +377,88 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HoverButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _HoverButton({
+    required this.child,
+    required this.onTap,
+  });
+
+  @override
+  State<_HoverButton> createState() => _HoverButtonState();
+}
+
+class _HoverButtonState extends State<_HoverButton> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.05,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _controller.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _controller.reverse();
+      },
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _isHovered
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ]
+                    : [],
+                ),
+                child: widget.child,
+              ),
+            );
+          },
         ),
       ),
     );

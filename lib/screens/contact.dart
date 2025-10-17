@@ -90,7 +90,7 @@ class _ContactScreenState extends State<ContactScreen> with TickerProviderStateM
             children: [
               Row(
                 children: [
-                  GestureDetector(
+                  _HoverButton(
                     onTap: () {
                       HapticFeedback.lightImpact();
                       Navigator.pop(context);
@@ -187,7 +187,7 @@ class _ContactScreenState extends State<ContactScreen> with TickerProviderStateM
   }
 
   Widget _buildContactCard(Map<String, dynamic> contact, bool isDark, int index) {
-    return GestureDetector(
+    return _HoverButton(
       onTap: () {
         HapticFeedback.lightImpact();
         _launchUrl(contact['url']);
@@ -260,58 +260,146 @@ class _ContactScreenState extends State<ContactScreen> with TickerProviderStateM
   }
 
   Widget _buildQuickContact(bool isDark) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? const Color(0xFF333333) : const Color(0xFFE0E0E0),
-          width: 1,
+    return _HoverButton(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _launchUrl('mailto:phoenixreviewz@email.com');
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark ? const Color(0xFF333333) : const Color(0xFFE0E0E0),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF00D4FF).withOpacity(0.1) : const Color(0xFF2196F3).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.chat_bubble_outline,
+                color: isDark ? const Color(0xFF00D4FF) : const Color(0xFF2196F3),
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Ready to Start a Project?',
+              style: TextStyle(
+                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Drop me a message and let\'s discuss how we can work together',
+              style: TextStyle(
+                color: isDark ? const Color(0xFF808080) : const Color(0xFF6A6A6A),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF00D4FF).withOpacity(0.1) : const Color(0xFF2196F3).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.chat_bubble_outline,
-              color: isDark ? const Color(0xFF00D4FF) : const Color(0xFF2196F3),
-              size: 32,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Ready to Start a Project?',
-            style: TextStyle(
-              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Drop me a message and let\'s discuss how we can work together',
-            style: TextStyle(
-              color: isDark ? const Color(0xFF808080) : const Color(0xFF6A6A6A),
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    );
+  }
+}
+
+class _HoverButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _HoverButton({
+    required this.child,
+    required this.onTap,
+  });
+
+  @override
+  State<_HoverButton> createState() => _HoverButtonState();
+}
+
+class _HoverButtonState extends State<_HoverButton> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.02,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _controller.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _controller.reverse();
+      },
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: _isHovered
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ]
+                    : [],
+                ),
+                child: widget.child,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
